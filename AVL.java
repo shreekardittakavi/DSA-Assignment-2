@@ -1,5 +1,7 @@
+import java.util.LinkedList;
+
 public class AVL<E extends Comparable<E>> {
-    private static final int ALLOWED_IMBALANCE = 0;
+    private static final int ALLOWED_IMBALANCE = 1;
 
     private static class Node<E> {
         public Node(E d, Node<E> l, Node<E> r) {
@@ -19,23 +21,35 @@ public class AVL<E extends Comparable<E>> {
         int height;
     }
 
-    public Node<E> search(E value, Node<E> t) {
-        if (t == null)
-            return t;
+    public Node<E> root;
 
-        int compare = value.compareTo(t.data);
-
-        if (compare < 0)
-            t.left = search(value, t.left);
-        else if (compare > 0)
-            t.right = search(value, t.right);
-        
-        return t;
+    public AVL() {
+        root = null;
     }
 
-    public Node<E> insert(E value, Node<E> t) {
+    public void insert(E value) {
+        root = insert(value, root);
+    }
+
+    public void search(E value) {
+        search(value, root);
+    }
+
+    public int getAVLKeyHeight(E key) {
+        return height(search(key, root));
+    }
+
+    public void clear() {
+        root = null;
+    }
+
+    public void print() {
+        print(root);
+    }
+
+    private Node<E> insert(E value, Node<E> t) {
         if (t == null)
-            return new Node<E>(value, null, null);
+            return new Node<>(value);
 
         int compare = value.compareTo(t.data);
 
@@ -49,40 +63,49 @@ public class AVL<E extends Comparable<E>> {
         return balance(t);
     }
 
-    private Node<E> remove(E value, Node<E> t) {
+    private Node<E> search(E value, Node<E> t) {
         if (t == null)
-            return t;
-        
+            return null;
+
         int compare = value.compareTo(t.data);
 
         if (compare < 0)
-            t.left = remove(value, t.left);
+            return search(value, t.left);
         else if (compare > 0)
-            t.right = remove(value, t.right);
-        else if (t.left != null && t.right != null) {
-            t.data = findMin(t.right).data;
-            t.right = remove(t.data, t.right);
-
-        }
-            System.out.println("Value already exists");
-
-        return balance(t);
+            return search(value, t.right);
+        else
+            return t;
     }
 
-    private Node<E> findMin(Node<E> t) {
-        if (t == null)
-            return t;
-        if (t.left == null)
-            return t;
-        return findMin(t.left);
+    private void print(Node<E> t) {
+        if (t == null) {
+            System.out.println("Tree is empty");
+            return;
+        }
+
+        LinkedList<Node<E>> queue = new LinkedList<>();
+        queue.add(t);
+
+        while (!queue.isEmpty()) {
+            Node<E> current = queue.removeFirst();
+            System.out.print(current.data + " ");
+
+            if (current.left != null)
+                queue.add(current.left);
+            if (current.right != null)
+                queue.add(current.right);
+        }
+        System.out.println();
     }
 
     private Node<E> rotateWithLeftChild(Node<E> k2) {
         Node<E> k1 = k2.left;
         k2.left = k1.right;
         k1.right = k2;
+
         k2.height = Math.max(height(k2.left), height(k2.right)) + 1;
         k1.height = Math.max(height(k1.left), height(k1.right)) + 1;
+
         return k1;
     }
 
@@ -90,8 +113,10 @@ public class AVL<E extends Comparable<E>> {
         Node<E> k1 = k2.right;
         k2.right = k1.left;
         k1.left = k2;
+
         k2.height = Math.max(height(k2.left), height(k2.right)) + 1;
         k1.height = Math.max(height(k1.left), height(k1.right)) + 1;
+
         return k1;
     }
 
@@ -107,24 +132,25 @@ public class AVL<E extends Comparable<E>> {
 
     private Node<E> balance(Node<E> t) {
         if (t == null)
-            return t;
+            return null;
 
-        if (height(t.left) - height(t.right) > ALLOWED_IMBALANCE)
+        if (height(t.left) - height(t.right) > ALLOWED_IMBALANCE) {
             if (height(t.left.left) >= height(t.left.right))
                 t = rotateWithLeftChild(t);
             else
                 t = doubleWithLeftChild(t);
-        else if (height(t.right) - height(t.left) > ALLOWED_IMBALANCE)
-            if (height(t.right.left) >= height(t.right.right))
+        } else if (height(t.right) - height(t.left) > ALLOWED_IMBALANCE) {
+            if (height(t.right.right) >= height(t.right.left))
                 t = rotateWithRightChild(t);
             else
                 t = doubleWithRightChild(t);
-        
+        }
+
         t.height = Math.max(height(t.left), height(t.right)) + 1;
         return t;
     }
 
     private int height(Node<E> t) {
-        return t == null ? -2 : t.height;
+        return t == null ? -1 : t.height;
     }
 }
