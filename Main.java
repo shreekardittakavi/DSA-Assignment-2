@@ -150,7 +150,7 @@ public class Main {
                 "iter3_search_keys.txt"
         };
 
-        // TIME BENCHMARKS
+        // Time benchmarks
         for (int i = 0; i < 3; i++) {
             try {
                 List<Integer> insertData = readData(insertFiles[i]);
@@ -181,7 +181,7 @@ public class Main {
             }
         }
 
-        // MEMORY BENCHMARKS
+        // Memory benchmarks
         for (int i = 0; i < 3; i++) {
             try {
                 List<Integer> insertData = readData(insertFiles[i]);
@@ -196,7 +196,7 @@ public class Main {
             }
         }
 
-        // -------- OUTPUT --------
+        // OUTPUT
         printTable("Insertion Performance (Time in ms)",
                 avlInsert, splayInsert, chainInsert, quadInsert);
 
