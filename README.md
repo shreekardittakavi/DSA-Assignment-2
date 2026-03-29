@@ -18,17 +18,13 @@
 | **Operating system** | Linux 6.19.8-arch1-1 (x86_64) |
 | **CPU** | AMD Ryzen 5 PRO 5675U with Radeon Graphics (6 cores / 12 threads) |
 
-*Replace the rows above with the machine you use for submission if it differs. Re-run `java Main` on that machine and update the performance tables so they match your environment.*
+---
 
-## Experimental setup
+## Objective (assignment summary)
 
-### Input sizes and key files
+This project implements and compares **AVL trees**, **splay trees**, and **hash tables** (separate chaining and quadratic probing) on large, changing integer-key datasets. We time **insertion** of *N* unique keys (duplicates ignored) and **search** with *N* lookups split between existing and non-existing keys, for *N* ∈ {1,000, 10,000, 100,000}.
 
-| Scale | Elements (*N*) | Table size (chaining) | Table size (quadratic) | Insert keys file | Search keys file |
-|-------|----------------|------------------------|-------------------------|------------------|------------------|
-| Small | 1,000 | 928 | 2,003 | `iter1_insert_keys.txt` | `iter1_search_keys.txt` |
-| Medium | 10,000 | 8,329 | 20,011 | `iter2_insert_keys.txt` | `iter2_search_keys.txt` |
-| Large | 100,000 | 83,329 | 200,003 | `iter3_insert_keys.txt` | `iter3_search_keys.txt` |
+---
 
 ### Timing and memory methodology
 
@@ -97,7 +93,7 @@ A BST where **search** and **splay-to-root** bring the accessed node to the root
 | Hash Table (Chaining) | 226,328 | 1,438,528 | 12,283,032 |
 | Hash Table (Quadratic) | 88,584 | 818,344 | 6,291,440 |
 
-*Small-N memory deltas can read as zero because of GC noise and baseline heap behavior*
+*Small-N memory deltas can read as zero because of GC noise and baseline heap behavior, as discussed in the assignment.*
 
 ## Discussion
 
@@ -119,3 +115,10 @@ A BST where **search** and **splay-to-root** bring the accessed node to the root
 - **AVL balancing** keeps height logarithmic, so search cost stays stable even under arbitrary key order from the files.
 - **Splaying** optimizes for **temporal locality**; with a **mixed, one-pass search file**, the tree shape keeps changing and average path length for “cold” keys can remain high, which matches the large search time at *N* = 100,000.
 - **Hashing** flattens average-case cost to near **O(1)** for search when load is reasonable and the hash spreads keys well.
+
+---
+
+## Conclusion
+
+Across the three scales tested with the provided key files, **open-addressing hashing with quadratic probing** offered the best **search** times and strong **insert** performance. **AVL trees** traded a bit of insert cost for **stable logarithmic** behavior. **Separate chaining** remained easy to reason about but paid extra in **memory** and **insert** time in this setup. **Splay trees** were sensitive to the **access pattern**: without strong repetition of keys, **search** did not outperform balanced BSTs or hash tables at the largest *N*. Overall, **choice of structure should follow expected access skew, need for worst-case guarantees, and memory budget**.
+
