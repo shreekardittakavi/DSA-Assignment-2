@@ -5,142 +5,153 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+
+    // Store results
+    static double[] avlInsert = new double[3];
+    static double[] splayInsert = new double[3];
+    static double[] chainInsert = new double[3];
+    static double[] quadInsert = new double[3];
+
+    static double[] avlSearch = new double[3];
+    static double[] splaySearch = new double[3];
+    static double[] chainSearch = new double[3];
+    static double[] quadSearch = new double[3];
+
+    private static List<Integer> readData(String filename) throws FileNotFoundException {
+        List<Integer> data = new ArrayList<>();
+        File f = new File(filename);
+        try (Scanner scan = new Scanner(f)) {
+            while (scan.hasNextInt()) {
+                data.add(scan.nextInt());
+            }
+        }
+        return data;
+    }
+
     private static void warmup() {
         AVL<Integer> avlTree = new AVL<>();
         try {
-            File f = new File("iter3_insert_keys.txt");
-            List<Integer> data;
-            try (Scanner scan = new Scanner(f)) {
-                data = new ArrayList<>();
-                while (scan.hasNextInt()) {
-                    int key = scan.nextInt();
-                    data.add(key);
-                }
-            }
+            List<Integer> data = readData("iter3_insert_keys.txt");
 
-            // insert warm up
             for (int i = 0; i < 10; i++) {
-                for (int key : data)
+                for (int key : data) {
                     avlTree.insert(key);
+                }
                 avlTree.clear();
             }
         } catch (FileNotFoundException e) {
-            System.out.println("An error has occurred reading the file");
+            System.out.println("Warmup file error");
         }
     }
 
-    private static void AVLInsertSearchMetrics(String insertFilename, String searchFilename) {
-        AVL<Integer> avlTree = new AVL<>();
-        try {
-            File f = new File(insertFilename);
-            List<Integer> data;
-            try (Scanner scan = new Scanner(f)) {
-                data = new ArrayList<>();
-                while (scan.hasNextInt()) {
-                    int key = scan.nextInt();
-                    data.add(key);
-                }
-            }
+    @SuppressWarnings("unchecked")
+    private static double measureInsert(Object structure, List<Integer> data) {
+        long start = System.nanoTime();
 
-            // insert timed
-            long insertStart = System.nanoTime();
-            for (int key : data) {
-                avlTree.insert(key);
-            }
-            long insertEnd = System.nanoTime();
-
-            System.out.print("AVL insert time (ms): ");
-            System.out.println((insertEnd - insertStart) * Math.pow(10, -6));
-
-        } catch (FileNotFoundException e) {
-            System.out.println("An error has occurred reading the file");
+        for (int key : data) {
+            if (structure instanceof AVL)
+                ((AVL<Integer>) structure).insert(key);
+            else if (structure instanceof Splay)
+                ((Splay<Integer>) structure).insert(key);
+            else if (structure instanceof SeparateChainingHashTable)
+                ((SeparateChainingHashTable<Integer>) structure).insert(key);
+            else if (structure instanceof QuadraticProbingHashTable)
+                ((QuadraticProbingHashTable<Integer>) structure).insert(key);
         }
 
-        try {
-            File f = new File(searchFilename);
-            List<Integer> data;
-            try (Scanner scan = new Scanner(f)) {
-                data = new ArrayList<>();
-                while (scan.hasNextInt()) {
-                    int key = scan.nextInt();
-                    data.add(key);
-                }
-            }
-
-            // search timed
-            long searchStart = System.nanoTime();
-            for (int key : data)
-                avlTree.search(key);
-            long searchEnd = System.nanoTime();
-
-            System.out.print("AVL search time (ms): ");
-            System.out.println((searchEnd - searchStart) * Math.pow(10, -6));
-
-        } catch (FileNotFoundException e) {
-            System.out.println("An error has occurred reading the file");
-        }
+        long end = System.nanoTime();
+        return (end - start) * Math.pow(10, -6);
     }
 
-    private static void SplayInsertSearchMetrics(String insertFilename, String searchFilename) {
-        Splay<Integer> splayTree = new Splay<>();
-        try {
-            File f = new File(insertFilename);
-            List<Integer> data;
-            try (Scanner scan = new Scanner(f)) {
-                data = new ArrayList<>();
-                while (scan.hasNextInt()) {
-                    int key = scan.nextInt();
-                    data.add(key);
-                }
-            }
+    @SuppressWarnings("unchecked")
+    private static double measureSearch(Object structure, List<Integer> data) {
+        long start = System.nanoTime();
 
-            // insert timed
-            long insertStart = System.nanoTime();
-            for (int key : data) {
-                splayTree.insert(key);
-            }
-            long insertEnd = System.nanoTime();
-
-            System.out.print("Splay tree insert time (ms): ");
-            System.out.println((insertEnd - insertStart) * Math.pow(10, -6));
-
-        } catch (FileNotFoundException e) {
-            System.out.println("An error has occurred reading the file");
+        for (int key : data) {
+            if (structure instanceof AVL)
+                ((AVL<Integer>) structure).search(key);
+            else if (structure instanceof Splay)
+                ((Splay<Integer>) structure).search(key);
+            else if (structure instanceof SeparateChainingHashTable)
+                ((SeparateChainingHashTable<Integer>) structure).search(key);
+            else if (structure instanceof QuadraticProbingHashTable)
+                ((QuadraticProbingHashTable<Integer>) structure).search(key);
         }
 
-        try {
-            File f = new File(searchFilename);
-            List<Integer> data;
-            try (Scanner scan = new Scanner(f)) {
-                data = new ArrayList<>();
-                while (scan.hasNextInt()) {
-                    int key = scan.nextInt();
-                    data.add(key);
-                }
-            }
+        long end = System.nanoTime();
+        return (end - start) / 1_000_000.0;
+    }
 
-            // search timed
-            long searchStart = System.nanoTime();
-            for (int key : data)
-                splayTree.search(key);
-            long searchEnd = System.nanoTime();
+    private static void printTable(String title, double[] avl, double[] splay,
+                                   double[] chain, double[] quad) {
 
-            System.out.print("Splay Tree search time (ms): ");
-            System.out.println((searchEnd - searchStart) * Math.pow(10, -6));
+        System.out.println("\n" + title);
+        System.out.printf("%-25s %-10s %-10s %-10s%n",
+                "Data Structure", "1,000", "10,000", "100,000");
 
-        } catch (FileNotFoundException e) {
-            System.out.println("An error has occurred reading the file");
-        }
+        System.out.printf("%-25s %-10.2f %-10.2f %-10.2f%n",
+                "AVL Tree", avl[0], avl[1], avl[2]);
+
+        System.out.printf("%-25s %-10.2f %-10.2f %-10.2f%n",
+                "Splay Tree", splay[0], splay[1], splay[2]);
+
+        System.out.printf("%-25s %-10.2f %-10.2f %-10.2f%n",
+                "Hash Table (Chaining)", chain[0], chain[1], chain[2]);
+
+        System.out.printf("%-25s %-10.2f %-10.2f %-10.2f%n",
+                "Hash Table (Quadratic)", quad[0], quad[1], quad[2]);
     }
 
     public static void main(String[] args) {
         warmup();
-        AVLInsertSearchMetrics("iter1_insert_keys.txt", "iter1_search_keys.txt");
-        AVLInsertSearchMetrics("iter2_insert_keys.txt", "iter2_search_keys.txt");
-        AVLInsertSearchMetrics("iter3_insert_keys.txt", "iter3_search_keys.txt");
 
-        SplayInsertSearchMetrics("iter1_insert_keys.txt", "iter1_search_keys.txt");
-        SplayInsertSearchMetrics("iter2_insert_keys.txt", "iter2_search_keys.txt");
-        SplayInsertSearchMetrics("iter3_insert_keys.txt", "iter3_search_keys.txt");
+        String[] insertFiles = {
+                "iter1_insert_keys.txt",
+                "iter2_insert_keys.txt",
+                "iter3_insert_keys.txt"
+        };
+
+        String[] searchFiles = {
+                "iter1_search_keys.txt",
+                "iter2_search_keys.txt",
+                "iter3_search_keys.txt"
+        };
+
+        for (int i = 0; i < 3; i++) {
+            try {
+                List<Integer> insertData = readData(insertFiles[i]);
+                List<Integer> searchData = readData(searchFiles[i]);
+
+                // AVL
+                AVL<Integer> avl = new AVL<>();
+                avlInsert[i] = measureInsert(avl, insertData);
+                avlSearch[i] = measureSearch(avl, searchData);
+
+                // Splay
+                Splay<Integer> splay = new Splay<>();
+                splayInsert[i] = measureInsert(splay, insertData);
+                splaySearch[i] = measureSearch(splay, searchData);
+
+                // Separate Chaining
+                SeparateChainingHashTable<Integer> chain = new SeparateChainingHashTable<>();
+                chainInsert[i] = measureInsert(chain, insertData);
+                chainSearch[i] = measureSearch(chain, searchData);
+
+                // Quadratic Probing
+                QuadraticProbingHashTable<Integer> quad = new QuadraticProbingHashTable<>();
+                quadInsert[i] = measureInsert(quad, insertData);
+                quadSearch[i] = measureSearch(quad, searchData);
+
+            } catch (FileNotFoundException e) {
+                System.out.println("File error");
+            }
+        }
+
+        // Print both tables
+        printTable("Insertion Performance (Time in ms)",
+                avlInsert, splayInsert, chainInsert, quadInsert);
+
+        printTable("Search Performance (Time in ms)",
+                avlSearch, splaySearch, chainSearch, quadSearch);
     }
 }

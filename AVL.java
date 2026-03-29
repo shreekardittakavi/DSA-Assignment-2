@@ -1,9 +1,12 @@
+
 import java.util.LinkedList;
 
 public class AVL<E extends Comparable<E>> {
+
     private static final int ALLOWED_IMBALANCE = 1;
 
     private static class Node<E> {
+
         public Node(E d, Node<E> l, Node<E> r) {
             data = d;
             left = l;
@@ -21,7 +24,7 @@ public class AVL<E extends Comparable<E>> {
         int height;
     }
 
-    public Node<E> root;
+    private Node<E> root;
 
     public AVL() {
         root = null;
@@ -35,8 +38,8 @@ public class AVL<E extends Comparable<E>> {
         search(value, root);
     }
 
-    public int getAVLKeyHeight(E key) {
-        return height(search(key, root));
+    public void getAVLKeyHeight(E key) {
+        System.out.println(height(search(key, root)));
     }
 
     public void clear() {
@@ -48,33 +51,37 @@ public class AVL<E extends Comparable<E>> {
     }
 
     private Node<E> insert(E value, Node<E> t) {
-        if (t == null)
+        if (t == null) {
             return new Node<>(value);
+        }
 
         int compare = value.compareTo(t.data);
 
-        if (compare < 0)
-            t.left = insert(value, t.left);
-        else if (compare > 0)
-            t.right = insert(value, t.right);
-        else
+        if (compare < 0) {
+            t.left = insert(value, t.left); 
+        }else if (compare > 0) {
+            t.right = insert(value, t.right); 
+        }else {
             System.out.println("Value already exists");
+        }
 
         return balance(t);
     }
 
     private Node<E> search(E value, Node<E> t) {
-        if (t == null)
+        if (t == null) {
             return null;
+        }
 
         int compare = value.compareTo(t.data);
 
-        if (compare < 0)
-            return search(value, t.left);
-        else if (compare > 0)
-            return search(value, t.right);
-        else
+        if (compare < 0) {
+            return search(value, t.left); 
+        }else if (compare > 0) {
+            return search(value, t.right); 
+        }else {
             return t;
+        }
     }
 
     private void print(Node<E> t) {
@@ -90,10 +97,12 @@ public class AVL<E extends Comparable<E>> {
             Node<E> current = queue.removeFirst();
             System.out.print(current.data + " ");
 
-            if (current.left != null)
+            if (current.left != null) {
                 queue.add(current.left);
-            if (current.right != null)
+            }
+            if (current.right != null) {
                 queue.add(current.right);
+            }
         }
         System.out.println();
     }
@@ -131,19 +140,22 @@ public class AVL<E extends Comparable<E>> {
     }
 
     private Node<E> balance(Node<E> t) {
-        if (t == null)
+        if (t == null) {
             return null;
+        }
 
         if (height(t.left) - height(t.right) > ALLOWED_IMBALANCE) {
-            if (height(t.left.left) >= height(t.left.right))
-                t = rotateWithLeftChild(t);
-            else
+            if (height(t.left.left) >= height(t.left.right)) {
+                t = rotateWithLeftChild(t); 
+            }else {
                 t = doubleWithLeftChild(t);
+            }
         } else if (height(t.right) - height(t.left) > ALLOWED_IMBALANCE) {
-            if (height(t.right.right) >= height(t.right.left))
-                t = rotateWithRightChild(t);
-            else
+            if (height(t.right.right) >= height(t.right.left)) {
+                t = rotateWithRightChild(t); 
+            }else {
                 t = doubleWithRightChild(t);
+            }
         }
 
         t.height = Math.max(height(t.left), height(t.right)) + 1;

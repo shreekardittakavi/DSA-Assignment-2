@@ -1,5 +1,8 @@
+
 public class Splay<E extends Comparable<E>> {
+
     private static class Node<E> {
+
         public E data;
         public Node<E> left, right, parent;
 
@@ -9,7 +12,7 @@ public class Splay<E extends Comparable<E>> {
         }
     }
 
-    public Node<E> root;
+    private Node<E> root;
 
     public Splay() {
         root = null;
@@ -32,36 +35,40 @@ public class Splay<E extends Comparable<E>> {
         root = null;
     }
 
-    public void print() {
+    public void DFSSplayTree() {
         print(root);
     }
 
     private Node<E> insert(E value, Node<E> t, Node<E> parent) {
-        if (t == null)
+        if (t == null) {
             return new Node<>(value, parent);
+        }
 
         int compare = value.compareTo(t.data);
 
-        if (compare < 0)
-            t.left = insert(value, t.left, t);
-        else if (compare > 0)
-            t.right = insert(value, t.right, t);
-        else
+        if (compare < 0) {
+            t.left = insert(value, t.left, t); 
+        }else if (compare > 0) {
+            t.right = insert(value, t.right, t); 
+        }else {
             System.out.println("Value already exists");
+        }
 
         return t;
     }
 
     private Node<E> search(E value, Node<E> t) {
-        if (t == null)
+        if (t == null) {
             return null;
+        }
 
         int compare = value.compareTo(t.data);
 
-        if (compare < 0)
-            return search(value, t.left);
-        else if (compare > 0)
+        if (compare < 0) {
+            return search(value, t.left); 
+        }else if (compare > 0) {
             return search(value, t.right);
+        }
         return t;
     }
 
@@ -77,8 +84,9 @@ public class Splay<E extends Comparable<E>> {
     }
 
     private Node<E> splayToRoot(Node<E> t) {
-        if (t == null || t.parent == null)
+        if (t == null || t.parent == null) {
             return t;
+        }
 
         while (t.parent != null) {
             Node<E> p = t.parent;
@@ -86,26 +94,24 @@ public class Splay<E extends Comparable<E>> {
 
             // zig
             if (g == null) {
-                if (t == p.left) rotateRight(p);
-                else rotateLeft(p);
-            }
-
-            // zig-zig
+                if (t == p.left) {
+                    rotateRight(p); 
+                }else {
+                    rotateLeft(p);
+                }
+            } // zig-zig
             else if (t == p.left && p == g.left) {
                 rotateRight(g);
                 rotateRight(p);
-            }
-            // zag-zag
+            } // zag-zag
             else if (t == p.right && p == g.right) {
                 rotateLeft(g);
                 rotateLeft(p);
-            }
-            // zig-zag
+            } // zig-zag
             else if (t == p.left && p == g.right) {
                 rotateRight(p);
                 rotateLeft(g);
-            }
-            // zag-zig
+            } // zag-zig
             else {
                 rotateLeft(p);
                 rotateRight(g);
@@ -118,12 +124,14 @@ public class Splay<E extends Comparable<E>> {
 
     private void rotateLeft(Node<E> x) {
         Node<E> y = x.right;
-        if (y == null)
+        if (y == null) {
             return;
+        }
 
         x.right = y.left;
-        if (y.left != null)
+        if (y.left != null) {
             y.left.parent = x;
+        }
 
         y.parent = x.parent;
 
@@ -141,12 +149,14 @@ public class Splay<E extends Comparable<E>> {
 
     private void rotateRight(Node<E> x) {
         Node<E> y = x.left;
-        if (y == null)
+        if (y == null) {
             return;
+        }
 
         x.left = y.right;
-        if (y.right != null)
+        if (y.right != null) {
             y.right.parent = x;
+        }
 
         y.parent = x.parent;
 
